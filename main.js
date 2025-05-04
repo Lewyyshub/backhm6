@@ -19,6 +19,44 @@ fs.readFile("file1.txt", "utf8", (err, data) => {
 
 // 2) create a files and folders in root directory, make some nested direcotirs with some files, then write a script that deletes only .txt files from directories.
 
+const pathh = require('path');
+
+function createFilesAndDirs() {
+  const base = "./rootdir";
+  const structure = [
+    "file1.txt",
+    "file2.md",
+    "dir1/file3.txt",
+    "dir1/dir1a/file4.txt",
+    "dir1/dir1a/file5.js",
+    "dir2/file6.txt",
+    "dir2/file7.py",
+  ];
+
+  structure.forEach((file) => {
+    const filePath = pathh.join(base, file);
+    fs.mkdirSync(pathh.dirname(filePath), { recursive: true });
+    fs.writeFileSync(filePath, "sample content");
+  });
+}
+function deleteTxtFiles(dir) {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+  for (let entry of entries) {
+    const fullPath = pathh.join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      deleteTxtFiles(fullPath);
+    } else if (entry.isFile() && entry.name.endsWith(".txt")) {
+      fs.unlinkSync(fullPath);
+      console.log(`${fullPath}`);
+    }
+  }
+}
+
+createFilesAndDirs();
+deleteTxtFiles("./rootdir");
+
 // 3) Print all files in a folder along with size and last modified time.
 // index.js - 2.1 KB - modified: 2024-01-01, you can use moment js.
 
